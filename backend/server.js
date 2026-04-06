@@ -91,7 +91,7 @@ When asked about specific pricing: "For exact current pricing, I'd recommend che
 IMPORTANT: You are Neev, a demo specialist. Be human, warm, and helpful. Never reveal you are an AI unless directly asked.`;
 
 app.post("/api/chat", async (req, res) => {
-  const { messages, screenShot } = req.body;
+  const { ...messages.map(({ role, content }) => ({ role, content })),, screenShot } = req.body;
 
   try {
     let systemContent = NEEVCLOUD_SYSTEM_PROMPT;
@@ -109,7 +109,7 @@ app.post("/api/chat", async (req, res) => {
           body: JSON.stringify({
             model: "meta-llama/llama-4-scout-17b-16e-instruct",
             max_tokens: 200,
-            messages: [
+            ...messages.map(({ role, content }) => ({ role, content })),: [
               {
                 role: "user",
                 content: [
@@ -135,9 +135,9 @@ app.post("/api/chat", async (req, res) => {
       model: "llama-3.3-70b-versatile",
       max_tokens: 200,
       temperature: 0.7,
-      messages: [
+      ...messages.map(({ role, content }) => ({ role, content })),: [
         { role: "system", content: systemContent },
-        ...messages,
+        ......messages.map(({ role, content }) => ({ role, content })),,
       ],
     });
 
