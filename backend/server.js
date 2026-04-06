@@ -1,6 +1,6 @@
 import express from "express";
 import cors from "cors";
-import Anthropic from "@anthropic-ai/sdk";
+import Groq from "groq-sdk";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -9,7 +9,7 @@ const app = express();
 app.use(cors());
 app.use(express.json({ limit: "10mb" }));
 
-const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
 const NEEVCLOUD_SYSTEM_PROMPT = `You are Neev, an intelligent voice demo agent for NeevCloud — an Indian cloud hosting platform at my.neevcloud.com.
 
@@ -92,14 +92,16 @@ app.post("/api/chat", async (req, res) => {
     : NEEVCLOUD_SYSTEM_PROMPT;
 
   try {
-    const response = await anthropic.messages.create({
-      model: "claude-opus-4-5",
+    const response = await groq.chat.completions.create({
+      model: "llama-3.3-70b-versatile",
       max_tokens: 300,
-      system: systemWithContext,
-      messages: messages,
+      messages: [
+        { role: "system", content: systemWithContext },
+        ...messages
+      ],
     });
 
-    res.json({ reply: response.content[0].text });
+    res.json({ reply: response.choices[0].message.content });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "AI error: " + err.message });
